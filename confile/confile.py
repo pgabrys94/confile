@@ -1,6 +1,7 @@
 import os
 import json
-
+from cryptography.fernet import Fernet
+import subprocess
 
 green = "\033[92m"
 red = "\033[91m"
@@ -10,7 +11,7 @@ reset = "\033[0m"
 class Confile:
     """
     Simple configuration file manager. Create parameters, save them to file in json format, load them back.
-    Methods: "create", "save", "load".
+    Methods: "create", "create_pwd", "unveil", "save", "load".
     Default parameters: "self.file" - absolute path to config file.
     """
     def __init__(self, cfile="config.json", cfilepath=os.getcwd()):
@@ -53,6 +54,41 @@ class Confile:
         """
         for k, v in args.items():
             setattr(self, k, v)
+
+    @staticmethod
+    def __get_key():
+        """
+        Method used for obtaining system UUID for both nt and unix systems.
+        Allows to decrypt data only on system where it was encrypted.
+        :return: String
+        """
+        if os.name == "nt":     # Windows compatibility.
+            key = subprocess.check_output(['wmic', 'csproduct', 'get', 'UUID'], text=True) \
+                .strip().splitlines()[2].replace("-", "")
+            key = (key + key[:11] + "=")    # Extending 32 to 44 bytes, required by Fernet.
+            return key.encode()
+        elif os.name != "nt":   # Linux/UNIX compatibility.
+            key = subprocess.check_output(['dmidecode', '-s', 'system-uuid'], text=True) \
+                .strip().splitlines()[2].replace("-", "")
+            key = (key + key[:11] + "=")    # Extending 32 to 44 bytes, required by Fernet.
+            return key.encode()
+
+    @staticmethod
+    def unveil(v):
+        """
+        Allows to decrypt values encrypted with create_pwd method.
+        :param v: String containing hexadecimal number.
+        :return: String /w decrypted password.
+        """
+        return Fernet(Confile.__get_key()).decrypt(bytes.fromhex(v)).decode()
+
+    def create_pwd(self, **args):
+        """
+        Creates parameter with encrypted value.
+        :param args: key=value -> string, int, bool
+        """
+        for k, v in args.items():
+            setattr(self, k, Fernet(Confile.__get_key()).encrypt(v.encode()).hex())
 
     def save(self):
         """
