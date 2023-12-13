@@ -73,6 +73,14 @@ class Confile:
             key = (key + key[:11] + "=")    # Extending 32 to 44 bytes, required by Fernet.
             return key.encode()
 
+    def veil(self, **args):
+        """
+        Creates parameter with encrypted value.
+        :param args: key=value -> string, int, bool
+        """
+        for k, v in args.items():
+            setattr(self, k, Fernet(Confile.__get_key()).encrypt(v.encode()).hex())
+
     @staticmethod
     def unveil(v):
         """
@@ -82,18 +90,10 @@ class Confile:
         """
         return Fernet(Confile.__get_key()).decrypt(bytes.fromhex(v)).decode()
 
-    def create_pwd(self, **args):
-        """
-        Creates parameter with encrypted value.
-        :param args: key=value -> string, int, bool
-        """
-        for k, v in args.items():
-            setattr(self, k, Fernet(Confile.__get_key()).encrypt(v.encode()).hex())
-
     def save(self):
         """
         Saves created parameters to file (default: config.json in working directory)
-        :return: string - save result
+        :return: string - saving result
         """
         try:
             variables = {}
@@ -108,14 +108,14 @@ class Confile:
 
     def load(self):
         """
-        Loads parameters from file and passes them to creator.
-        :return: string - load result
+        Loads parameters from file and passes them to instance.
+        :return: string - loading result
         """
         if self.__check():
             with open(self.fullpath, "r")as config:
                 variables = json.load(config)
                 for k, v in variables.items():
-                    self.create(k=v)
+                    setattr(self, k, v)
                 print("{}CONFIG READ SUCCESS{}".format(green, reset))
         else:
             print("{}CONFIG READ ERROR{}".format(red, reset))
