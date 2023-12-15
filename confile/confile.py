@@ -73,13 +73,20 @@ class Confile:
             key = (key + key[:11] + "=")    # Extending 32 to 44 bytes, required by Fernet.
             return key.encode()
 
-    def veil(self, **args):
+    def veil(self, k, i):
         """
-        Creates parameter with encrypted value.
-        :param args: key=value -> string, int, bool
+        Encrypts created parameter.
+        :param k: string -> key containing value you want to encrypt
+        :param i: int -> value index
         """
-        for k, v in args.items():
-            setattr(self, k, Fernet(Confile.__get_key()).encrypt(v.encode()).hex())
+        values = self()[k]
+        print(values)
+        encrypted = Fernet(Confile.__get_key()).encrypt(values[i].encode()).hex()
+        values.pop(i)
+        values.insert(i, encrypted)
+        setattr(self, k, values)
+        # for k, v in args.items():
+        #     setattr(self, k, Fernet(Confile.__get_key()).encrypt(v.encode()).hex())
 
     @staticmethod
     def unveil(v):
