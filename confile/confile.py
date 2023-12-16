@@ -2,6 +2,7 @@ import os
 import json
 from cryptography.fernet import Fernet
 import subprocess
+import hashlib
 
 green = "\033[92m"
 red = "\033[91m"
@@ -14,18 +15,21 @@ class Confile:
     Methods: "create", "create_pwd", "unveil", "save", "load".
     Default parameters: "self.file" - absolute path to config file.
     """
-    def __init__(self, cfile="config.json", cfilepath=os.getcwd()):
+    def __init__(self, cfile="config.json", cfilepath=os.getcwd(), salt="ch4ng3M3pl3453"):
         """
         You can specify configuration file name and location.
         By default, config file is located in program working directory, named "config.json".
         :param cfile: string, i.e. "name.json"
         :param cfilepath: string, path to config file location (without file name)
+        :param salt: string, used for additional encryption hardening.
         """
         self.fullpath = os.path.join(cfilepath, cfile)
+        self.salt = bytes.fromhex("".join(hex(ord(char))[2:] for char in salt))
 
     def __call__(self):
         vardict = self.__dict__.copy()
         del vardict["fullpath"]
+        del vardict["salt"]
         return vardict
 
     @property
@@ -55,22 +59,30 @@ class Confile:
         for k, v in args.items():
             setattr(self, k, v)
 
-    @staticmethod
-    def __get_key():
+    def __get_key(self):
         """
         Method used for obtaining system UUID for both nt and unix systems.
         Allows to decrypt data only on system where it was encrypted.
         :return: String
         """
+        # Converting salt string into md5 hash
+        md5 = hashlib.md5()
+        md5.update(self.salt)
+        supersalt = md5.hexdigest()
+
         if os.name == "nt":     # Windows compatibility.
             key = subprocess.check_output(['wmic', 'csproduct', 'get', 'UUID'], text=True) \
                 .strip().splitlines()[2].replace("-", "")
-            key = (key + key[:11] + "=")    # Extending 32 to 44 bytes, required by Fernet.
+            # Extending 32 to 44 bytes using md5 salt, required by Fernet.
+            key = (key[:16] + supersalt[16:32] + supersalt[:2] + supersalt[5:7] + key[7:9] + supersalt[16:18]
+                   + key[21:23] + key[29] + "=")
             return key.encode()
         elif os.name != "nt":   # Linux/UNIX compatibility.
             key = subprocess.check_output(['dmidecode', '-s', 'system-uuid'], text=True) \
                 .strip().splitlines()[2].replace("-", "")
-            key = (key + key[:11] + "=")    # Extending 32 to 44 bytes, required by Fernet.
+            # Extending 32 to 44 bytes using md5, required by Fernet.
+            key = (key[:16] + supersalt[16:32] + supersalt[:2] + supersalt[5:7] + key[7:9] + supersalt[16:18]
+                   + key[21:23] + key[29] + "=")
             return key.encode()
 
     def veil(self, key, index=0):
@@ -84,19 +96,22 @@ class Confile:
         :param index: int -> value index
         """
         values = self()[key]
-        encrypted = Fernet(Confile.__get_key()).encrypt(values[index].encode()).hex()
-        values.pop(index)
-        values.insert(index, encrypted)
-        setattr(self, key, values)
+        if isinstance(values, list):
+            encrypted = Fernet(self.__get_key()).encrypt(values[index].encode()).hex()
+            values.pop(index)
+            values.insert(index, encrypted)
+            setattr(self, key, values)
+        else:
+            encrypted = Fernet(self.__get_key()).encrypt(values.encode()).hex()
+            setattr(self, key, encrypted)
 
-    @staticmethod
-    def unveil(v):
+    def unveil(self, encrypted_value):
         """
         Allows to decrypt values encrypted with create_pwd method.
-        :param v: String containing hexadecimal number.
+        :param encrypted_value: String containing hexadecimal number.
         :return: String /w decrypted password.
         """
-        return Fernet(Confile.__get_key()).decrypt(bytes.fromhex(v)).decode()
+        return Fernet(self.__get_key()).decrypt(bytes.fromhex(encrypted_value)).decode()
 
     def save(self):
         """

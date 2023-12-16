@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='confile',
-    version='1.8',
+    version='1.9',
     description='A simple configuration file manager',
     author='Paweł Gabryś',
     author_email='p.gabrys@int.pl',
