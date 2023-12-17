@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='conson',
-    version='1.9',
+    version='2.0',
     description='A simple json configuration file manager',
     author='Paweł Gabryś',
     author_email='p.gabrys@int.pl',
