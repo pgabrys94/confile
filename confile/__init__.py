@@ -1,3 +1,3 @@
-from .confile import Confile
+from .conson import Conson
 
-__all__ = ['Confile']
+__all__ = ['Conson']

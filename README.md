@@ -1,22 +1,22 @@
 Module for creating parameters, saving them and loading from JSON formatted file.
 
-    from .confile import Confile
+    from .conson import Conson
 
 Usage:
 
-1. Confile(cfile="config.json", cfilepath=os.getcwd()):
+1. Conson(cfile="config.json", cfilepath=os.getcwd(), salt="ch4ng3M3pl3453"):
     You can set file name/extension and path to config file directory. By default, current working directory is used.
 
 2. Instance call:
-   Calling Confile instance will return all kwargs that has already been set by create and create_pwd methods.
-   Values created with create_pwd method will be encrypted and presented in hex value.
-   You can also use print(vars(<instance>())) to return kwargs with absolute path to config file.
+   Calling Conson instance will return all kwargs that has already been set by create method.
+   Values modified with .veil method will be encrypted and presented in hex value.
+   You can also use print(vars(<instance>())) to return kwargs with absolute path to config file and salt value.
 
 3. .create(**kwargs): 
     Creates parameter in key=value pair. Accepts multiple keyword values.
     Example:
 
-        settings = Confile()
+        settings = Conson()
 
         settings.create(setting1="value1", setting2=True, setting3=["value1", "value2"])
 

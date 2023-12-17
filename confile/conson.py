@@ -9,7 +9,7 @@ red = "\033[91m"
 reset = "\033[0m"
 
 
-class Confile:
+class Conson:
     """
     Simple configuration file manager. Create parameters, save them to file in json format, load them back.
     Methods: "create", "create_pwd", "unveil", "save", "load".
