@@ -24,31 +24,32 @@ class Conson:
         :param cfilepath: string, path to config file location (without file name)
         :param salt: string, used for additional encryption hardening.
         """
-        self.fullpath = os.path.join(cfilepath, cfile)
-        self.clean_salt = salt
-        self.salt = bytes.fromhex("".join(hex(ord(char))[2:] for char in self.clean_salt))
+        self.__fullpath = os.path.join(cfilepath, cfile)
+        self.__clean_salt = salt
+        self.__salt = bytes.fromhex("".join(hex(ord(char))[2:] for char in self.__clean_salt))
 
     def __call__(self):
         vardict = self.__dict__.copy()
-        del vardict["fullpath"]
-        del vardict["salt"]
+        del vardict["_Conson__fullpath"]
+        del vardict["_Conson__salt"]
+        del vardict["_Conson__clean_salt"]
         return vardict
 
     @property
     def file(self):
-        return self.fullpath
+        return self.__fullpath
 
     @file.setter
     def file(self, filename, cfilepath=os.getcwd()):
-        self.fullpath = os.path.join(cfilepath, filename)
+        self.__fullpath = os.path.join(cfilepath, filename)
 
     @property
     def salt(self):
-        return self.clean_salt
+        return self.__clean_salt
 
     @salt.setter
     def salt(self, salt_value):
-        self.clean_salt = salt_value
+        self.__clean_salt = salt_value
 
     def __check(self):
         """
@@ -56,7 +57,7 @@ class Conson:
         :return: bool
         """
         try:
-            with open(self.fullpath, "r")as config:
+            with open(self.__fullpath, "r")as config:
                 return isinstance(json.load(config), dict)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             return False
@@ -77,7 +78,7 @@ class Conson:
         """
         # Converting salt string into md5 hash
         md5 = hashlib.md5()
-        md5.update(self.salt)
+        md5.update(self.__salt)
         supersalt = md5.hexdigest()
 
         if os.name == "nt":     # Windows compatibility.
@@ -130,7 +131,7 @@ class Conson:
         """
         try:
             variables = {}
-            with open(self.fullpath, "w") as config:
+            with open(self.__fullpath, "w") as config:
                 for k, v in self().items():
                     if k != "fullpath":
                         variables[k] = v
@@ -145,7 +146,7 @@ class Conson:
         :return: string - loading result
         """
         if self.__check():
-            with open(self.fullpath, "r")as config:
+            with open(self.__fullpath, "r")as config:
                 variables = json.load(config)
                 for k, v in variables.items():
                     setattr(self, k, v)
