@@ -26,7 +26,10 @@ Usage:
 
         settings.create(setting1="value1", setting2=True, setting3=["value1", "value2"])
 
-4. .veil(key, index=0):
+4. .dispose(key):
+    Removes created parameter from instance.
+
+5. .veil(key, index=0):
     Passes created value through Fernet SHA-256 encryption. We point the key and value index number.
     Secret key is based on system-related UUID, so decryption is meant to happen only on device the encryption has place.
     Example:

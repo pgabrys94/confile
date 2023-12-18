@@ -70,6 +70,9 @@ class Conson:
         for k, v in args.items():
             setattr(self, k, v)
 
+    def dispose(self, key):
+        delattr(self, key)
+
     def __get_key(self):
         """
         Method used for obtaining system UUID for both nt and unix systems.
