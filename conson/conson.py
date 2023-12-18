@@ -13,7 +13,8 @@ class Conson:
     """
     Simple configuration file manager. Create parameters, save them to file in json format, load them back.
     Methods: "create", "create_pwd", "unveil", "save", "load".
-    Default parameters: "self.file" - absolute path to config file.
+    Default parameters: "self.file" - absolute path to config file,
+                        "self.clean_salt" - salt string value.
     """
     def __init__(self, cfile="config.json", cfilepath=os.getcwd(), salt="ch4ng3M3pl3453"):
         """
@@ -24,7 +25,8 @@ class Conson:
         :param salt: string, used for additional encryption hardening.
         """
         self.fullpath = os.path.join(cfilepath, cfile)
-        self.salt = bytes.fromhex("".join(hex(ord(char))[2:] for char in salt))
+        self.clean_salt = salt
+        self.salt = bytes.fromhex("".join(hex(ord(char))[2:] for char in self.clean_salt))
 
     def __call__(self):
         vardict = self.__dict__.copy()
@@ -39,6 +41,14 @@ class Conson:
     @file.setter
     def file(self, filename, cfilepath=os.getcwd()):
         self.fullpath = os.path.join(cfilepath, filename)
+
+    @property
+    def salt(self):
+        return self.clean_salt
+
+    @salt.setter
+    def salt(self, salt_value):
+        self.clean_salt = salt_value
 
     def __check(self):
         """
