@@ -71,6 +71,10 @@ class Conson:
             setattr(self, k, v)
 
     def dispose(self, key):
+        """
+        Deletes parameter key.
+        :param key: string -> key you want to remove.
+        """
         delattr(self, key)
 
     def __get_key(self):
