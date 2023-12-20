@@ -104,7 +104,7 @@ class Conson:
             return key.encode()
         elif os.name != "nt":   # Linux/UNIX compatibility.
             key = subprocess.check_output(['dmidecode', '-s', 'system-uuid'], text=True) \
-                .strip().splitlines()[2].replace("-", "")
+                .strip().replace("-", "")
             # Extending 32 to 44 bytes using md5, required by Fernet.
             key = (key[:16] + supersalt[16:32] + supersalt[:2] + supersalt[5:7] + key[7:9] + supersalt[16:18]
                    + key[21:23] + key[29] + "=")
