@@ -68,7 +68,14 @@ class Conson:
         :param k: key name -> string
         :param v: values -> string, list
         """
-        setattr(self, k, v if len(v) > 1 else v[0])
+        if len(list(v)) > 1:
+            values = []
+            for val in v:
+                values.append(val)
+            v = values
+        else:
+            v = v[0]
+        setattr(self, k, v)
 
     def dispose(self, key):
         """
