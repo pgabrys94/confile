@@ -50,6 +50,7 @@ class Conson:
     @salt.setter
     def salt(self, salt_value):
         self.__clean_salt = salt_value
+        self.__salt = bytes.fromhex("".join(hex(ord(char))[2:] for char in self.__clean_salt))
 
     def __check(self):
         """
