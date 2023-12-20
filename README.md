@@ -1,5 +1,7 @@
 Module for creating parameters, saving them and loading from JSON formatted file.
 
+    pip install conson
+
     from .conson import Conson
 
 Usage:
