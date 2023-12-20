@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='conson',
-    version='2.141',
+    version='2.2',
     description='A simple json configuration file manager',
     long_description=long_description,
     long_description_content_type='text/markdown',

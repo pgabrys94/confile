@@ -62,13 +62,13 @@ class Conson:
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             return False
 
-    def create(self, **args):
+    def create(self, k, *v):
         """
         Creates parameter.
-        :param args: key=value -> string, int, bool
+        :param k: key name -> string
+        :param v: values -> string, list
         """
-        for k, v in args.items():
-            setattr(self, k, v)
+        setattr(self, k, v if len(v) > 1 else v[0])
 
     def dispose(self, key):
         """

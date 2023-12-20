@@ -18,13 +18,14 @@ Usage:
         <instance>.salt
         <instance>.salt = <your salt>
 
-3. .create(**kwargs): 
-    Creates parameter in key=value pair. Accepts multiple keyword values.
+3. .create(key, *value): 
+    Creates parameter in key=value pair. Accepts single value or list of values.
     Example:
 
         settings = Conson()
 
-        settings.create(setting1="value1", setting2=True, setting3=["value1", "value2"])
+        settings.create(key1, value1, value2, value3)
+        settings.create(key2, [value1, value2, value3])
 
 4. .dispose(key):
     Removes created parameter from instance.
