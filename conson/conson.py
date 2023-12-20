@@ -135,9 +135,13 @@ class Conson:
         """
         Allows to decrypt values encrypted with create_pwd method.
         :param encrypted_value: String containing hexadecimal number.
-        :return: String /w decrypted password.
+        :return: String with decrypted password or "tooSalty".
         """
-        return Fernet(self.__get_key()).decrypt(bytes.fromhex(encrypted_value)).decode()
+        try:
+            soup = Fernet(self.__get_key()).decrypt(bytes.fromhex(encrypted_value)).decode()
+        except Exception:
+            soup = "tooSalty"
+        return soup
 
     def save(self):
         """
