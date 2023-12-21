@@ -143,9 +143,10 @@ class Conson:
             soup = "tooSalty"
         return soup
 
-    def save(self):
+    def save(self, verbose=False):
         """
         Saves created parameters to file (default: config.json in working directory)
+        :param verbose: Any -> if not empty, prints result.
         :return: string - saving result
         """
         try:
@@ -155,13 +156,16 @@ class Conson:
                     if k != "fullpath":
                         variables[k] = v
                 json.dump(variables, config, indent=4)
-            print("{}CONFIG SAVE SUCCESS!{}".format(green, reset))
+            if verbose:
+                print("{}CONFIG SAVE SUCCESS!{}".format(green, reset))
         except Exception as err:
-            print("{}CONFIG SAVE ERROR:{} {}".format(red, reset, err))
+            if verbose:
+                print("{}CONFIG SAVE ERROR:{} {}".format(red, reset, err))
 
-    def load(self):
+    def load(self, verbose=False):
         """
         Loads parameters from file and passes them to instance.
+        :param verbose: Any -> if not empty, prints result.
         :return: string - loading result
         """
         if self.__check():
@@ -169,6 +173,8 @@ class Conson:
                 variables = json.load(config)
                 for k, v in variables.items():
                     setattr(self, k, v)
-                print("{}CONFIG READ SUCCESS{}".format(green, reset))
+                    if verbose:
+                        print("{}CONFIG READ SUCCESS{}".format(green, reset))
         else:
-            print("{}CONFIG READ ERROR{}".format(red, reset))
+            if verbose:
+                print("{}CONFIG READ ERROR{}".format(red, reset))

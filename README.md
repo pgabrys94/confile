@@ -52,11 +52,11 @@ Usage:
        settings.unveil(settings()["setting1"])
        settings.unveil(settings()["setting3"][1])
 
-7. .save():
-    Saves all parameters created to file. Prints result of operation (success/failure).
+7. .save(verbose=False):
+    Saves all parameters created to file. Prints result of operation (success/failure) if verbose parameter has been given.
 
-8. .load():
-    Loads json formatted settings from file. Prints result of operation (success/failure).
+8. .load(verbose=False):
+    Loads json formatted settings from file. Prints result of operation (success/failure) if verbose parameter has been given.
 
 
 
