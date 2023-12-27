@@ -85,6 +85,13 @@ class Conson:
         """
         delattr(self, key)
 
+    def dump(self):
+        """
+        Deletes all created parameters.
+        """
+        for attr in list(self()):
+            delattr(self, attr)
+
     def __get_key(self):
         """
         Method used for obtaining system UUID for both nt and unix systems.
