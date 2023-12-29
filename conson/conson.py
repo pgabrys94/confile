@@ -98,6 +98,14 @@ class Conson:
         Allows to decrypt data only on system where it was encrypted.
         :return: String
         """
+        def create_key(key_input):
+            """
+            Extending 32 to 44 bytes using md5 salt, required by Fernet.
+            """
+            hard_key = (key_input[:16] + supersalt[16:32] + supersalt[:2] + supersalt[5:7] + key_input[7:9]
+                        + supersalt[16:18] + key_input[21:23] + key_input[29] + "=")
+            return hard_key.encode()
+
         # Converting salt string into md5 hash
         md5 = hashlib.md5()
         md5.update(self.__salt)
@@ -106,17 +114,12 @@ class Conson:
         if os.name == "nt":     # Windows compatibility.
             key = subprocess.check_output(['wmic', 'csproduct', 'get', 'UUID'], text=True) \
                 .strip().splitlines()[2].replace("-", "")
-            # Extending 32 to 44 bytes using md5 salt, required by Fernet.
-            key = (key[:16] + supersalt[16:32] + supersalt[:2] + supersalt[5:7] + key[7:9] + supersalt[16:18]
-                   + key[21:23] + key[29] + "=")
-            return key.encode()
+
+            create_key(key)
         elif os.name != "nt":   # Linux/UNIX compatibility.
             key = subprocess.check_output(['dmidecode', '-s', 'system-uuid'], text=True) \
                 .strip().replace("-", "")
-            # Extending 32 to 44 bytes using md5, required by Fernet.
-            key = (key[:16] + supersalt[16:32] + supersalt[:2] + supersalt[5:7] + key[7:9] + supersalt[16:18]
-                   + key[21:23] + key[29] + "=")
-            return key.encode()
+            create_key(key)
 
     def veil(self, key, index=0):
         """
