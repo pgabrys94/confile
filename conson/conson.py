@@ -115,11 +115,11 @@ class Conson:
             key = subprocess.check_output(['wmic', 'csproduct', 'get', 'UUID'], text=True) \
                 .strip().splitlines()[2].replace("-", "")
 
-            create_key(key)
+            return create_key(key)
         elif os.name != "nt":   # Linux/UNIX compatibility.
             key = subprocess.check_output(['dmidecode', '-s', 'system-uuid'], text=True) \
                 .strip().replace("-", "")
-            create_key(key)
+            return create_key(key)
 
     def veil(self, key, index=0):
         """
