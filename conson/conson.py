@@ -121,7 +121,7 @@ class Conson:
                 .strip().replace("-", "")
             return create_key(key)
 
-    def veil(self, key, index=0):
+    def veil(self, key, index="0"):
         """
         Encrypts created parameter.
         E.g.: for
@@ -129,13 +129,17 @@ class Conson:
         encrypting "password will be:
         <instance>.veil("pc1", 1)
         :param key: string -> key containing value you want to encrypt
-        :param index: int -> value index
+        :param index: string -> value index number(list) or key(dictionary)
         """
         values = self()[key]
         if isinstance(values, list):
+            encrypted = Fernet(self.__get_key()).encrypt(values[int(index)].encode()).hex()
+            values.pop(int(index))
+            values.insert(int(index), encrypted)
+            setattr(self, key, values)
+        elif isinstance(values, dict):
             encrypted = Fernet(self.__get_key()).encrypt(values[index].encode()).hex()
-            values.pop(index)
-            values.insert(index, encrypted)
+            values[index] = encrypted
             setattr(self, key, values)
         else:
             encrypted = Fernet(self.__get_key()).encrypt(values.encode()).hex()

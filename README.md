@@ -28,6 +28,7 @@ Usage:
 
         settings.create(key1, value1, value2, value3)
         settings.create(key2, [value1, value2, value3])
+        settings.create(key3, {"subkey1": "value1", "subkey2": value2, "subkey3": value3})
 
 4. .dispose(key):
     Removes created parameter from instance.
@@ -36,18 +37,20 @@ Usage:
     Removes all created parameters. Useful in case when only one instance is invoked and multiple configuration files
     are being loaded - allows to prevent mixing parameters simply by dumping them out.
 
-6. .veil(key, index=0):
+6. .veil(key, index="0"):
     Passes created value through Fernet SHA-256 encryption. We point the key and value index number.
     Secret key is based on system-related UUID, so decryption is meant to happen only on device the encryption has place.
     Example:
 
        settings.veil("setting1")
        settings.veil("setting3", 1)
+       settings.veil("setting3", "key")
    
    Result print(settings()):
 
        "setting1": "674141414141426c65566a6c6123123330617a41416c6330307a3667794a41535965537733423sdvb347705f464a5648435a39596b586a45304b31506232646b645353355f2d4c4646623546fggf3395a6c4e38595f7358676269513d3d"
        "setting3": "value1", "674141414141426c65566a6c6123123330617a41416c6330307a3667794a41535965537733423sdvb347705f464a5648435a39596b586a45304b31506232646b645353355f2d4c4646623546fggf3395a6c4e38595f7358676269513d3d"
+       "setting3": {"key": "674141414141426c65566a6c6123123330617a41416c6330307a3667794a41535965537733423sdvb347705f464a5648435a39596b586a45304b31506232646b645353355f2d4c4646623546fggf3395a6c4e38595f7358676269513d3d"}
 
 7. .unveil(value):
     Allows to decrypt veiled(encrypted) values. Value must be already present in instance (by .create or .load).
@@ -55,6 +58,7 @@ Usage:
 
        settings.unveil(settings()["setting1"])
        settings.unveil(settings()["setting3"][1])
+       settings.unveil(settings()["setting3"]["key"])
 
 8. .save(verbose=False):
     Saves all parameters created to file. Prints result of operation (success/failure) if verbose parameter has been given.
