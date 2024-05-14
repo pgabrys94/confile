@@ -40,11 +40,12 @@ Usage:
 6. .veil(key, index="0"):
     Passes created value through Fernet SHA-256 encryption. We point the key and value index number.
     Secret key is based on system-related UUID, so decryption is meant to happen only on device the encryption has place.
+    If you want to reach value in nested dictionary, you can use subkey OR it's subkey's index number.
     Example:
 
        settings.veil("setting1")
        settings.veil("setting3", 1)
-       settings.veil("setting3", "key")
+       settings.veil("setting3", "key") 
    
    Result print(settings()):
 

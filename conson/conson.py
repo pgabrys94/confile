@@ -117,7 +117,7 @@ class Conson:
 
             return create_key(key)
         elif os.name != "nt":   # Linux/UNIX compatibility.
-            key = subprocess.check_output(['dmidecode', '-s', 'system-uuid'], text=True) \
+            key = subprocess.check_output(['/usr/sbin/dmidecode', '-s', 'system-uuid'], text=True) \
                 .strip().replace("-", "")
             return create_key(key)
 
@@ -128,6 +128,7 @@ class Conson:
         <instance>.create(pc1=["login", "password"])
         encrypting "password will be:
         <instance>.veil("pc1", 1)
+        For dictionary value you can use either subkey or its index.
         :param key: string -> key containing value you want to encrypt
         :param index: string -> value index number(list) or key(dictionary)
         """
@@ -138,8 +139,12 @@ class Conson:
             values.insert(int(index), encrypted)
             setattr(self, key, values)
         elif isinstance(values, dict):
-            encrypted = Fernet(self.__get_key()).encrypt(values[index].encode()).hex()
-            values[index] = encrypted
+            if index.isnumeric():
+                encrypted = Fernet(self.__get_key()).encrypt(values[list(values)[int(index)]].encode()).hex()
+                values[list(values)[int(index)]] = encrypted
+            else:
+                encrypted = Fernet(self.__get_key()).encrypt(values[index].encode()).hex()
+                values[index] = encrypted
             setattr(self, key, values)
         else:
             encrypted = Fernet(self.__get_key()).encrypt(values.encode()).hex()
