@@ -117,11 +117,11 @@ class Conson:
 
             return create_key(key)
         elif os.name != "nt":   # Linux/UNIX compatibility.
-            key = subprocess.check_output(['/usr/sbin/dmidecode', '-s', 'system-uuid'], text=True) \
+            key = subprocess.check_output(['cat', '/sys/class/dmi/id/product_uuid'], text=True) \
                 .strip().replace("-", "")
             return create_key(key)
 
-    def veil(self, key, index="0"):
+    def veil(self, key, index="0", marker=""):
         """
         Encrypts created parameter.
         E.g.: for
@@ -131,24 +131,39 @@ class Conson:
         For dictionary value you can use either subkey or its index.
         :param key: string -> key containing value you want to encrypt
         :param index: string -> value index number(list) or key(dictionary)
+        :param marker: String -> String with desired markers to put at beginning and end of veiled string. Single or
+        multiple chars can be used. Multiple chars will be split into half;
+        for uneven length - first char, content, rest of chars.
         """
+        def mark(content, chars):
+            if len(marker) == 0:
+                return content
+            elif len(chars) == 1:
+                return chars + content + chars
+            elif len(chars) > 1:
+                if len(chars) % 2 == 0:
+                    mid = len(chars) // 2
+                    return chars[:mid] + content + chars[mid:]
+                else:
+                    return chars[:1] + content + chars[1:]
+
         values = self()[key]
         if isinstance(values, list):
             encrypted = Fernet(self.__get_key()).encrypt(values[int(index)].encode()).hex()
             values.pop(int(index))
-            values.insert(int(index), encrypted)
+            values.insert(int(index), mark(encrypted, marker))
             setattr(self, key, values)
         elif isinstance(values, dict):
             if index.isnumeric():
                 encrypted = Fernet(self.__get_key()).encrypt(values[list(values)[int(index)]].encode()).hex()
-                values[list(values)[int(index)]] = encrypted
+                values[list(values)[int(index)]] = mark(encrypted, marker)
             else:
                 encrypted = Fernet(self.__get_key()).encrypt(values[index].encode()).hex()
-                values[index] = encrypted
+                values[index] = mark(encrypted, marker)
             setattr(self, key, values)
         else:
             encrypted = Fernet(self.__get_key()).encrypt(values.encode()).hex()
-            setattr(self, key, encrypted)
+            setattr(self, key, mark(encrypted, marker))
 
     def unveil(self, encrypted_value):
         """
